@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App - Thời tiết</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .search-section {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 50px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(252, 182, 159, 0.4);
+        }
+
+        .unit-toggle {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .unit-toggle label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 18px;
+            display: none;
+        }
+
+        .weather-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .weather-card {
+            background: rgba(255,255,255,0.95);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .weather-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .weather-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .city-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .weather-icon {
+            font-size: 3em;
+        }
+
+        .temperature {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 20px;
+            text-transform: capitalize;
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+        }
+
+        .detail-icon {
+            font-size: 1.2em;
+        }
+
+        .forecast-section {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .forecast-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .forecast-item {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .forecast-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .forecast-date {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .forecast-temp {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .history-section {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .history-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .error-message {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message {
+            background: #51cf66;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .search-input {
+                min-width: 100%;
+            }
+            
+            .weather-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .forecast-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌤️ Weather App</h1>
+            <p>Ứng dụng thời tiết hiện đại</p>
+        </div>
+
+        <div class="search-section">
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <form class="search-form" id="searchForm">
+                <input type="text" class="search-input" id="cityInput" placeholder="Nhập tên thành phố... (VD: Hanoi, Ho Chi Minh City)" required>
+                <button type="submit" class="btn btn-primary">🔍 Tìm kiếm</button>
+                <button type="button" class="btn btn-secondary" id="forecastBtn">📅 Dự báo 5 ngày</button>
+                <button type="button" class="btn btn-secondary" id="multipleBtn">🌍 Nhiều thành phố</button>
+            </form>
+            
+            <div class="unit-toggle">
+                <label>Đơn vị nhiệt độ:</label>
+                <button class="btn btn-secondary" id="celsiusBtn">°C</button>
+                <button class="btn btn-secondary" id="fahrenheitBtn">°F</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <p>⏳ Đang tải dữ liệu thời tiết...</p>
+        </div>
+
+        <div class="weather-grid" id="weatherGrid"></div>
+        
+        <div class="forecast-section" id="forecastSection" style="display: none;">
+            <h2 class="forecast-title">📅 Dự báo thời tiết 5 ngày</h2>
+            <div class="forecast-grid" id="forecastGrid"></div>
+        </div>
+
+        <div class="history-section" id="historySection" style="display: none;">
+            <h2 class="history-title">📚 Lịch sử tìm kiếm</h2>
+            <div class="history-list" id="historyList"></div>
+        </div>
+    </div>
+
+    <script>
+        class WeatherApp {
+            constructor() {
+                this.apiKey = '566eb49f0b6f02d5467f9a5901979272';
+                this.baseUrl = 'https://api.openweathermap.org/data/2.5/';
+                this.unit = 'metric';
+                this.tempUnit = 'C';
+                this.history = JSON.parse(localStorage.getItem('weatherHistory') || '[]');
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.updateUnitButtons();
+                this.displayHistory();
+            }
+
+            setupEventListeners() {
+                document.getElementById('searchForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.searchWeather();
+                });
+
+                document.getElementById('forecastBtn').addEventListener('click', () => {
+                    this.searchForecast();
+                });
+
+                document.getElementById('multipleBtn').addEventListener('click', () => {
+                    this.searchMultipleCities();
+                });
+
+                document.getElementById('celsiusBtn').addEventListener('click', () => {
+                    this.setUnit('C');
+                });
+
+                document.getElementById('fahrenheitBtn').addEventListener('click', () => {
+                    this.setUnit('F');
+                });
+            }
+
+            async searchWeather() {
+                const city = document.getElementById('cityInput').value.trim();
+                if (!city) return;
+
+                this.showLoading();
+                this.hideMessages();
+
+                try {
+                    const data = await this.fetchWeatherData(city);
+                    this.displayWeather([data]);
+                    this.saveToHistory(city, data);
+                    this.showSuccess(`Đã tải thời tiết cho ${city}`);
+                } catch (error) {
+                    this.showError(error.message);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async searchForecast() {
+                const city = document.getElementById('cityInput').value.trim();
+                if (!city) {
+                    this.showError('Vui lòng nhập tên thành phố');
+                    return;
+                }
+
+                this.showLoading();
+                this.hideMessages();
+
+                try {
+                    const data = await this.fetchForecastData(city);
+                    this.displayForecast(data);
+                    this.showSuccess(`Đã tải dự báo cho ${city}`);
+                } catch (error) {
+                    this.showError(error.message);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async searchMultipleCities() {
+                const input = document.getElementById('cityInput').value.trim();
+                if (!input) {
+                    this.showError('Vui lòng nhập tên các thành phố cách nhau bởi dấu phẩy');
+                    return;
+                }
+
+                const cities = input.split(',').map(city => city.trim());
+                this.showLoading();
+                this.hideMessages();
+
+                try {
+                    const promises = cities.map(city => this.fetchWeatherData(city));
+                    const results = await Promise.allSettled(promises);
+                    
+                    const successData = results
+                        .filter(result => result.status === 'fulfilled')
+                        .map(result => result.value);
+                    
+                    if (successData.length > 0) {
+                        this.displayWeather(successData);
+                        this.showSuccess(`Đã tải thời tiết cho ${successData.length} thành phố`);
+                    } else {
+                        this.showError('Không thể tải thời tiết cho các thành phố đã nhập');
+                    }
+                } catch (error) {
+                    this.showError(error.message);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async fetchWeatherData(city) {
+                const url = `${this.baseUrl}weather?q=${city}&appid=${this.apiKey}&units=${this.unit}&lang=vi`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error(`Không tìm thấy thành phố: ${city}`);
+                    }
+                    throw new Error(`Lỗi API: ${response.status}`);
+                }
+                
+                return await response.json();
+            }
+
+            async fetchForecastData(city) {
+                const url = `${this.baseUrl}forecast?q=${city}&appid=${this.apiKey}&units=${this.unit}&lang=vi`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error(`Không tìm thấy thành phố: ${city}`);
+                    }
+                    throw new Error(`Lỗi API: ${response.status}`);
+                }
+                
+                return await response.json();
+            }
+
+            displayWeather(weatherArray) {
+                const grid = document.getElementById('weatherGrid');
+                grid.innerHTML = '';
+
+                weatherArray.forEach(data => {
+                    const card = this.createWeatherCard(data);
+                    grid.appendChild(card);
+                });
+
+                // Ẩn forecast section khi hiển thị current weather
+                document.getElementById('forecastSection').style.display = 'none';
+            }
+
+            createWeatherCard(data) {
+                const card = document.createElement('div');
+                card.className = 'weather-card';
+                
+                const temp = this.formatTemperature(data.main.temp);
+                const feelsLike = this.formatTemperature(data.main.feels_like);
+                const weatherIcon = this.getWeatherIcon(data.weather[0].icon);
+                
+                card.innerHTML = `
+                    <div class="weather-header">
+                        <div class="city-name">${data.name}, ${data.sys.country}</div>
+                        <div class="weather-icon">${weatherIcon}</div>
+                    </div>
+                    <div class="temperature">${temp}°${this.tempUnit}</div>
+                    <div class="description">${data.weather[0].description}</div>
+                    <div class="weather-details">
+                        <div class="detail-item">
+                            <span class="detail-icon">🤔</span>
+                            <span>Cảm giác: ${feelsLike}°${this.tempUnit}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">💧</span>
+                            <span>Độ ẩm: ${data.main.humidity}%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">🌬️</span>
+                            <span>Gió: ${data.wind.speed} m/s</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">🔽</span>
+                            <span>Áp suất: ${data.main.pressure} hPa</span>
+                        </div>
+                    </div>
+                `;
+                
+                return card;
+            }
+
+            displayForecast(data) {
+                const forecastSection = document.getElementById('forecastSection');
+                const forecastGrid = document.getElementById('forecastGrid');
+                
+                forecastGrid.innerHTML = '';
+                
+                // Nhóm dự báo theo ngày
+                const dailyForecasts = {};
+                data.list.forEach(item => {
+                    const date = new Date(item.dt * 1000).toDateString();
+                    if (!dailyForecasts[date]) {
+                        dailyForecasts[date] = [];
+                    }
+                    dailyForecasts[date].push(item);
+                });
+                
+                // Hiển thị 5 ngày đầu
+                const days = Object.keys(dailyForecasts).slice(0, 5);
+                days.forEach(day => {
+                    const dayData = dailyForecasts[day];
+                    const avgTemp = dayData.reduce((sum, item) => sum + item.main.temp, 0) / dayData.length;
+                    const maxTemp = Math.max(...dayData.map(item => item.main.temp));
+                    const minTemp = Math.min(...dayData.map(item => item.main.temp));
+                    const description = dayData[0].weather[0].description;
+                    const icon = this.getWeatherIcon(dayData[0].weather[0].icon);
+                    
+                    const forecastItem = document.createElement('div');
+                    forecastItem.className = 'forecast-item';
+                    forecastItem.innerHTML = `
+                        <div class="forecast-date">${this.formatDate(day)}</div>
+                        <div class="weather-icon" style="font-size: 2em;">${icon}</div>
+                        <div class="forecast-temp">${this.formatTemperature(avgTemp)}°${this.tempUnit}</div>
+                        <div style="font-size: 0.9em; color: #666;">
+                            Max: ${this.formatTemperature(maxTemp)}°${this.tempUnit}<br>
+                            Min: ${this.formatTemperature(minTemp)}°${this.tempUnit}
+                        </div>
+                        <div style="font-size: 0.9em; color: #888; margin-top: 5px; text-transform: capitalize;">
+                            ${description}
+                        </div>
+                    `;
+                    
+                    forecastGrid.appendChild(forecastItem);
+                });
+                
+                forecastSection.style.display = 'block';
+                
+                // Ẩn weather grid khi hiển thị forecast
+                document.getElementById('weatherGrid').innerHTML = '';
+            }
+
+            displayHistory() {
+                const historySection = document.getElementById('historySection');
+                const historyList = document.getElementById('historyList');
+                
+                if (this.history.length === 0) {
+                    historySection.style.display = 'none';
+                    return;
+                }
+                
+                historyList.innerHTML = '';
+                
+                this.history.slice(-10).reverse().forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = `
+                        <div>
+                            <strong>${item.city}</strong><br>
+                            <small>${new Date(item.timestamp).toLocaleString('vi-VN')}</small>
+                        </div>
+                        <div>
+                            ${this.formatTemperature(item.temperature)}°${this.tempUnit}<br>
+                            <small style="text-transform: capitalize;">${item.description}</small>
+                        </div>
+                    `;
+                    historyList.appendChild(historyItem);
+                });
+                
+                historySection.style.display = 'block';
+            }
+
+            saveToHistory(city, data) {
+                const entry = {
+                    city: data.name,
+                    timestamp: new Date().toISOString(),
+                    temperature: data.main.temp,
+                    description: data.weather[0].description
+                };
+                
+                this.history.push(entry);
+                if (this.history.length > 20) {
+                    this.history = this.history.slice(-20);
+                }
+                
+                localStorage.setItem('weatherHistory', JSON.stringify(this.history));
+                this.displayHistory();
+            }
+
+            setUnit(unit) {
+                this.tempUnit = unit;
+                this.unit = unit === 'C' ? 'metric' : 'imperial';
+                this.updateUnitButtons();
+            }
+
+            updateUnitButtons() {
+                const celsiusBtn = document.getElementById('celsiusBtn');
+                const fahrenheitBtn = document.getElementById('fahrenheitBtn');
+                
+                celsiusBtn.style.background = this.tempUnit === 'C' ? 
+                    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 
+                    'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)';
+                celsiusBtn.style.color = this.tempUnit === 'C' ? 'white' : '#333';
+                
+                fahrenheitBtn.style.background = this.tempUnit === 'F' ? 
+                    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 
+                    'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)';
+                fahrenheitBtn.style.color = this.tempUnit === 'F' ? 'white' : '#333';
+            }
+
+            formatTemperature(temp) {
+                return Math.round(temp);
+            }
+
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+                return `${days[date.getDay()]}, ${date.getDate()}/${date.getMonth() + 1}`;
+            }
+
+            getWeatherIcon(iconCode) {
+                const icons = {
+                    '01d': '☀️', '01n': '🌙',
+                    '02d': '⛅', '02n': '⛅',
+                    '03d': '☁️', '03n': '☁️',
+                    '04d': '☁️', '04n': '☁️',
+                    '09d': '🌧️', '09n': '🌧️',
+                    '10d': '🌦️', '10n': '🌦️',
+                    '11d': '⛈️', '11n': '⛈️',
+                    '13d': '❄️', '13n': '❄️',
+                    '50d': '🌫️', '50n': '🌫️'
+                };
+                return icons[iconCode] || '🌤️';
+            }
+
+            showLoading() {
+                document.getElementById('loading').style.display = 'block';
+            }
+
+            hideLoading() {
+                document.getElementById('loading').style.display = 'none';
+            }
+
+            showError(message) {
+                const errorDiv = document.getElementById('errorMessage');
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                setTimeout(() => errorDiv.style.display = 'none', 5000);
+            }
+
+            showSuccess(message) {
+                const successDiv = document.getElementById('successMessage');
+                successDiv.textContent = message;
+                successDiv.style.display = 'block';
+                setTimeout(() => successDiv.style.display = 'none', 3000);
+            }
+
+            hideMessages() {
+                document.getElementById('errorMessage').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'none';
+            }
+        }
+
+        // Khởi tạo app khi trang load
+        document.addEventListener('DOMContentLoaded', () => {
+            new WeatherApp();
+        });
+    </script>
+</body>
+</html>
